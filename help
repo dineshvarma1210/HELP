@@ -1,0 +1,20 @@
+# Import the required namespaces
+Add-Type -AssemblyName "System.Net.Http"
+Add-Type -Path (Join-Path -Path (Join-Path -Path $env:USERPROFILE -ChildPath '.nuget\packages\microsoft.azure.management.fluent\1.37.1\lib\netstandard2.0') -ChildPath 'Microsoft.Azure.Management.Fluent.dll')
+
+# Load the Azure.Identity assembly
+Add-Type -Path (Join-Path -Path (Join-Path -Path $env:USERPROFILE -ChildPath '.nuget\packages\azure.identity\1.4.0\lib\netstandard2.0') -ChildPath 'Azure.Identity.dll')
+
+# Create the DefaultAzureCredential object with the user-assigned managed identity client ID
+$ManagedIdentityClientId = "<YourManagedIdentityClientID>"
+$credential = [Azure.Identity.DefaultAzureCredential]::new([Azure.Identity.DefaultAzureCredentialOptions]::new(ManagedIdentityClientId = $ManagedIdentityClientId))
+
+# Define the resource scope
+$scope = "https://eventhubs.azure.net/.default"
+
+# Obtain the access token
+$tokenRequestContext = [Azure.Core.TokenRequestContext]::new([string[]]@($scope))
+$accessToken = $credential.GetTokenAsync($tokenRequestContext).Result
+
+# Output the access token
+Write-Output "Access Token: $($accessToken.Token)"
