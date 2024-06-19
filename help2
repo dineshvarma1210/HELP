@@ -1,0 +1,30 @@
+pip install azure-identity azure-eventhub
+
+from azure.eventhub import EventHubProducerClient, EventData
+from azure.identity import DefaultAzureCredential
+
+# Fully qualified namespace, Event Hub name, and the credential
+fully_qualified_namespace = 'YourEventHubNamespace.servicebus.windows.net'
+eventhub_name = 'YourEventHubName'
+credential = DefaultAzureCredential()
+
+def send_event(producer):
+    event_data_batch = producer.create_batch()
+
+    # Add events to the batch
+    event_data_batch.add(EventData('First event'))
+    event_data_batch.add(EventData('Second event'))
+    event_data_batch.add(EventData('Third event'))
+
+    # Send the batch of events to the event hub
+    producer.send_batch(event_data_batch)
+    print("Events sent to Event Hub")
+
+if __name__ == "__main__":
+    producer = EventHubProducerClient(
+        fully_qualified_namespace=fully_qualified_namespace,
+        eventhub_name=eventhub_name,
+        credential=credential
+    )
+    send_event(producer)
+    producer.close()
